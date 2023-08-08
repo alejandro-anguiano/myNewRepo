@@ -1,0 +1,168 @@
+
+
+
+
+data <- import(file=choose.files()
+               ,date="date"
+               ,date.format = "%m/%d/%Y %H:%M"  ###IF ERROR, LOAD AND RELOAD OPENAIR
+               ,na.strings= c("NA"," ","")
+)
+
+
+data$pacHour <- as.POSIXct(data$pacHour
+                           ,tz=Sys.timezone()
+                           ,format= "%m/%d/%Y %H:%M"
+)
+
+
+summarizedData <- data[,c(1,7:9,10:11)]
+summarizedData$date <-summarizedData$pacHour
+
+
+polarData <- data[,c(1,5:11)]
+polarData$date <- polarData$pacHour  
+
+timePData <- data[,c(1,10:11,13:14,17)]
+timePData$date <-timePData$pacHour
+
+
+
+
+
+
+
+####timePlot
+
+
+selectDate <- selectByDate(timePData
+                             ,year= "2022"
+                       #      ,month= "aug"
+                            # ,start= "2021-01-01"
+                            # ,end= "2021-12-31"
+ )
+
+
+openair::timePlot(selectDate
+                  ,pollutant = c("Hourly PM25"
+                                 ,"3 Hr. PM25"
+                                 ,"24 Hr. PM25"
+                  )
+                  ,y.relation= "free"
+                  ,fontsize= 10
+                  ,date.breaks = 10
+                  ,key=FALSE
+                  ,alpha=0.1
+                  ,ylab=NULL
+         #         ,main="Kernville EBAM Hourly PM2.5, 3 Hour Rolling PM2.5, 24 Hour Rolling PM2.5"
+                 )  
+
+
+poly.na <- function(x1
+                    , y1
+                    , x2
+                    , y2
+                    , col = "black"
+                    , alpha = .05
+) 
+{
+  for(i in seq(2
+               , length(x1)
+  )
+  )
+    if (!any(is.na(y2[c(i - 1, i)])))
+      lpolygon(c(x1[i - 1]
+                 , x1[i]
+                 , x2[i]
+                 , x2[i - 1]
+      )
+      ,c(y1[i - 1]
+         , y1[i]
+         , y2[i]
+         , y2[i - 1]
+      )
+      ,col = col
+      , border = NA
+      , alpha = alpha
+      )
+}
+
+###Hourly PM2.5 Bands
+
+trellis.last.object() +
+  layer(poly.na(x, y, x, rep(0, length(x)),
+                col = "green", alpha = 1), rows = 1)
+trellis.last.object() +
+  layer(poly.na(x, ifelse(y <38, NA, y), x,
+                rep(38, length(x)), col = "yellow", alpha = 1),
+        rows = 1) 
+trellis.last.object() +
+  layer(poly.na(x, ifelse(y <89, NA, y),
+                x, rep(89, length(x)),
+                col = "orange", alpha = 1), rows = 1)
+trellis.last.object() +
+  layer(poly.na(x, ifelse(y <139, NA, y),
+                x, rep(139, length(x)),
+                col = "red", alpha = 1), rows = 1)
+trellis.last.object() +
+  layer(poly.na(x, ifelse(y <352, NA, y), x,
+                rep(352, length(x)), col = "mediumpurple", alpha = 1),
+        rows = 1)
+trellis.last.object() +
+  layer(poly.na(x, ifelse(y <526, NA, y),
+                x, rep(526, length(x)),
+                col = "blueviolet", alpha = 1), rows = 1)
+
+
+###Hourly 3 Hour Rolling PM2.5 Bands
+
+trellis.last.object() +
+  layer(poly.na(x, y, x, rep(0, length(x)),
+                col = "green", alpha = 1), rows = 2)
+trellis.last.object() +
+  layer(poly.na(x, ifelse(y <38, NA, y), x,
+                rep(38, length(x)), col = "yellow", alpha = 1),
+        rows = 2)
+trellis.last.object() +
+  layer(poly.na(x, ifelse(y <89, NA, y),
+                x, rep(89, length(x)),
+                col = "orange", alpha = 1), rows = 2)
+trellis.last.object() +
+  layer(poly.na(x, ifelse(y <139, NA, y),
+                x, rep(139, length(x)),
+                col = "red", alpha = 1), rows = 2)
+trellis.last.object() +
+  layer(poly.na(x, ifelse(y <352, NA, y), x,
+                rep(352, length(x)), col = "mediumpurple", alpha = 1),
+        rows = 2)
+trellis.last.object() +
+  layer(poly.na(x, ifelse(y <526, NA, y),
+                x, rep(526, length(x)),
+                col = "blueviolet", alpha = 1), rows = 2)
+
+###Hourly 24 Hour Rolling PM2.5 Bands
+
+trellis.last.object() +
+  layer(poly.na(x, y, x, rep(0, length(x)),
+                col = "green", alpha = 1),rows = 3)
+trellis.last.object() +
+  layer(poly.na(x, ifelse(y <12.1, NA, y), x,
+                rep(12.1, length(x)), col = "yellow", alpha = 1),
+        rows = 3)
+trellis.last.object() +
+  layer(poly.na(x, ifelse(y <35.5, NA, y),
+                x, rep(35.5, length(x)),
+                col = "orange", alpha = 1), rows = 3)
+trellis.last.object() +
+  layer(poly.na(x, ifelse(y <55.5, NA, y),
+                x, rep(55.5, length(x)),
+                col = "red", alpha = 1), rows = 3)
+trellis.last.object() +
+  layer(poly.na(x, ifelse(y <150.5, NA, y), x,
+                rep(150.5, length(x)), col = "mediumpurple", alpha = 1),
+        rows = 3)
+trellis.last.object() +
+  layer(poly.na(x, ifelse(y <250.5, NA, y),
+                x, rep(250.5, length(x)),
+                col = "blueviolet", alpha = 1), rows = 3)
+
+
